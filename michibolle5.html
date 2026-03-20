@@ -6,13 +6,12 @@
 <title>Menu Pasta</title>
 
 <style>
-  /* Stile generale body */
   body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   }
 
-  /* Contenitore a griglia per le immagini dei piatti */
+  /* Contenitore griglia per i piatti */
   .container {
     width: 100%;
     max-width: 430px;
@@ -23,7 +22,7 @@
     gap: 5px;
   }
 
-  /* Ogni piatto */
+  /* Ogni singolo piatto */
   .item {
     position: relative;
     width: 100%;
@@ -40,7 +39,6 @@
     -webkit-user-drag: none;
   }
 
-  /* Overlay trasparente sopra le immagini */
   .overlay {
     position: absolute;
     top: 0;
@@ -51,12 +49,10 @@
     pointer-events: none;
   }
 
-  /* Effetto quando il piatto è attivo */
   .active img {
     filter: brightness(150%);
   }
 
-  /* Timer al centro dell'immagine */
   .timer {
     position: absolute;
     top: 50%;
@@ -68,9 +64,23 @@
     display: none;
     text-align: center;
   }
+
+  /* Bottone sblocca audio */
+  #unlockBtn {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1000;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
+
+<!-- Bottone per sbloccare audio su GitHub Pages / iOS -->
+<button id="unlockBtn">Sblocca Audio</button>
 
 <div class="container">
   <div class="item" onclick="startTimer(this,'Rigatoni')"><img src="rigatoni.png"><div class="overlay"></div><div class="timer">0:00</div></div>
@@ -85,7 +95,7 @@
 <audio id="audioPlayer"></audio>
 
 <script>
-  // Tempi dei piatti in minuti
+  // Tempi in minuti dei piatti
   const pastaTimers = {
     'Rigatoni': 0.1,
     'Raviolini': 0.1,
@@ -95,7 +105,7 @@
     'Orecchiette': 1
   };
 
-  // Frasi finali da mostrare
+  // Frasi finali
   const pastaFrasiFinali = {
     'Rigatoni': "Sono pronti i Rigatoni!",
     'Raviolini': "Sono pronti i Raviolini!",
@@ -105,31 +115,30 @@
     'Orecchiette': "Sono pronte le Orecchiette!"
   };
 
-  // Audio associati ai piatti
+  // Audio dei piatti (usa .mp3 per compatibilità)
   const pastaAudio = {
-    'Rigatoni': 'rigatoni.m4a',
-    'Raviolini': 'raviolini.m4a',
-    'Ravioli': 'ravioli.m4a',
-    'Tagliolini': 'tagliolini.m4a',
-    'Gnocchi': 'gnocchi.m4a',
-    'Orecchiette': 'orecchiette.m4a'
+    'Rigatoni': 'rigatoni.mp3',
+    'Raviolini': 'raviolini.mp3',
+    'Ravioli': 'ravioli.mp3',
+    'Tagliolini': 'tagliolini.mp3',
+    'Gnocchi': 'gnocchi.mp3',
+    'Orecchiette': 'orecchiette.mp3'
   };
 
-  const resetDelay = 5; // tempo dopo il quale il timer si resetta
+  const resetDelay = 5; // secondi prima di resettare il timer
   const audioPlayer = document.getElementById('audioPlayer');
+  let currentInterval = null;
+  let currentElement = null;
 
-  let currentInterval = null; // intervallo timer attivo
-  let currentElement = null;  // elemento attivo
-
-  // Trucco iOS: sblocca l'audio al primo click senza riprodurlo
-  function unlockAudio() {
+  // Bottone sblocca audio
+  const unlockBtn = document.getElementById('unlockBtn');
+  unlockBtn.addEventListener('click', ()=>{
     audioPlayer.src = '';
-    audioPlayer.play().catch(()=>{}); // non suona niente, serve solo per sbloccare
-    document.removeEventListener('click', unlockAudio);
-  }
-  document.addEventListener('click', unlockAudio);
+    audioPlayer.play().catch(()=>{});
+    unlockBtn.style.display = 'none'; // nasconde il bottone dopo click
+  });
 
-  // Funzione principale per avviare il timer
+  // Funzione per avviare il timer
   function startTimer(element, nome) {
     // Ferma eventuale timer precedente
     if (currentInterval) {
@@ -165,17 +174,16 @@
         clearInterval(currentInterval);
         currentInterval = null;
 
-        // Mostra frase finale
         timerDisplay.textContent = pastaFrasiFinali[nome];
         element.classList.remove("active");
 
-        // Riproduce l'audio solo alla fine del timer
+        // Riproduce l'audio solo alla fine
         if (audioPlayer.paused) {
           audioPlayer.src = pastaAudio[nome];
           audioPlayer.play().catch(()=>{}); 
         }
 
-        // Reset timer dopo pochi secondi
+        // Reset timer dopo resetDelay
         setTimeout(()=>{
           timerDisplay.textContent = "0:00";
           timerDisplay.style.display = "none";
@@ -184,5 +192,6 @@
     },1000);
   }
 </script>
+
 </body>
 </html>
