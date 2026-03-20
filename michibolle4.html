@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menu Pasta</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 430px;
+    height: 100vh;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px; /* spazio tra immagini */
+  }
+
+  .item {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+ 
+  .item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: filter 0.3s;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,0);
+    pointer-events: none;
+  }
+
+  .active img {
+    filter: brightness(150%);
+  }
+
+  .timer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 48px;
+    font-weight: bold;
+    color: black;
+    display: none;
+    text-align: center;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="item" onclick="startTimer(this,'Rigatoni')">
+    <img src="rigatoni.png">
+    <div class="overlay"></div>
+    <div class="timer">0:00</div>
+  </div>
+
+  <div class="item" onclick="startTimer(this,'Raviolini')">
+    <img src="raviolini.png">
+    <div class="overlay"></div>
+    <div class="timer">0:00</div>
+  </div>
+
+  <div class="item" onclick="startTimer(this,'Ravioli')">
+    <img src="ravioli.png">
+    <div class="overlay"></div>
+    <div class="timer">0:00</div>
+  </div>
+
+  <div class="item" onclick="startTimer(this,'Tagliolini')">
+    <img src="tagliolini.png">
+    <div class="overlay"></div>
+    <div class="timer">0:00</div>
+  </div>
+
+  <div class="item" onclick="startTimer(this,'Gnocchi')">
+    <img src="gnocchi.png">
+    <div class="overlay"></div>
+    <div class="timer">0:00</div>
+  </div>
+
+  <div class="item" onclick="startTimer(this,'Orecchiette')">
+    <img src="orecchiette.png">
+    <div class="overlay"></div>
+    <div class="timer">0:00</div>
+  </div>
+</div>
+
+<!-- Player audio invisibile -->
+<audio id="audioPlayer"></audio>
+
+<script>
+  const pastaTimers = {
+    'Rigatoni': 0.1,
+    'Raviolini': 0.1,
+    'Ravioli': 5,
+    'Tagliolini': 0.1,
+    'Gnocchi': 5,
+    'Orecchiette': 1
+  };
+
+  const pastaFrasiFinali = {
+    'Rigatoni': "Sono pronti i Rigatoni!",
+    'Raviolini': "Sono pronti i Raviolini!",
+    'Ravioli': "Sono pronti i Ravioli!",
+    'Tagliolini': "Sono pronti i Tagliolini!",
+    'Gnocchi': "Sono pronti gli Gnocchi!",
+    'Orecchiette': "Sono pronte le Orecchiette!"
+  };
+
+  const pastaAudio = {
+    'Rigatoni': 'rigatoni.m4a',
+    'Raviolini': 'raviolini.m4a',
+    'Ravioli': 'ravioli.m4a',
+    'Tagliolini': 'tagliolini.m4a',
+    'Gnocchi': 'gnocchi.m4a',
+    'Orecchiette': 'orecchiette.m4a'
+  };
+
+  const resetDelay = 5; // secondi prima di ripristinare timer e immagine
+  const audioPlayer = document.getElementById('audioPlayer');
+
+  function startTimer(element, nome) {
+    if (element.classList.contains("active")) return;
+
+    element.classList.add("active");
+    const timerDisplay = element.querySelector(".timer");
+    timerDisplay.style.display = "block";
+
+    // riproduci subito audio al click
+    audioPlayer.src = pastaAudio[nome];
+    audioPlayer.play();
+
+    let seconds = pastaTimers[nome] * 60;
+    const interval = setInterval(() => {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      timerDisplay.textContent = m + ":" + (s < 10 ? "0" + s : s);
+      seconds--;
+
+      if (seconds < 0) {
+        clearInterval(interval);
+        timerDisplay.textContent = pastaFrasiFinali[nome];
+        element.classList.remove("active");
+
+        setTimeout(() => {
+          timerDisplay.textContent = "0:00";
+          timerDisplay.style.display = "none";
+        }, resetDelay * 1000);
+      }
+    }, 1000);
+  }
+</script>
+
+</body>
+</html>
